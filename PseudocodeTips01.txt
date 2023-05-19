@@ -1,0 +1,53 @@
+ Pseudocode tips and instructions 
+
+ unless directed to do so, avoid trying to implement features that are not currently supported if it would require significant additional dependencies and modules to implement it or if doing so would require a significant change in the logic and structure of the pseudocode to accommodate it. add relevant notes explaining your decision regarding any features that whos implementation was avoided for this reason. 
+
+The pseudocode should use any relevant operators or utilities that could simplify or optimize some of the tasks, to make the pseudocode more powerful and versatile by allowing the user easy access to options and parameters that allow fine-tuning and controlling the output.
+
+  • wherever possible and advisable, the pseudocode should simplify or optimize some of the tasks, to make the pseudocode more concise and efficient by using built-in functions and classes.
+
+ in the case of user input the pseudocode should check if the user has specified a valid image file,  output folder, etc. before loading or saving. for example using os.path.isfile() and os.path.isdir() functions to verify if the paths are valid and exist, and raise an exception or show a warning message if they are not.
+
+The pseudocode use any relevant built-in operators or utilities that could simplify or optimize some of the tasks, to make the pseudocode more concise and efficient.
+
+ if relevant make the pseudocode more powerful and versatile by using any relevant options and parameters that allow the user better fine-tuning and control over the output.
+
+ Avoid using hard-coded values and paths that may not work on different systems or environments. Instead use variables or arguments that can be customized by the user or detected automatically by the script.
+
+ always handle potential exceptions or errors gracefully. where relevant, use try-except blocks or logging functions to catch and report any problems that may occur during the execution of the script, including informative error messages with useful details for troubleshooting wherever possible 
+
+ If writing for python, follow PEP 8 style guide for Python code; using consistent indentation, spacing, naming, and formatting to make the code more readable and maintainable.
+
+ pseudocode should always include comments or documentation to explain what it does or how it works. Make consistent use of clear and concise docstrings, comments, and annotations to document the purpose, parameters, and return values of each function and class in the pseudocode, elaborating with extra details anywhere where this could be especially useful.
+
+ use any relevant modules or utilities that could simplify or optimize some of the tasks.
+
+ Take full advantage of any relevant available features or options to make the resulting software as powerful, flexible, optimized, and easy to use as possible.
+
+ where relevant, simplify or optimize some of the tasks to make the pseudocode more concise and efficient, for example by using built-in operators and utilities.
+
+ The pseudocode should use any available options or parameters that could improve or customize the results so as to make the pseudocode more powerful and versatile.
+
+ Properly utilize any relevant modules or utilities that could simplify or optimize some of the tasks, to make the pseudocode more concise and efficient, for example by using built-in functions and classes.
+
+ wherever advisable, add a try-except block or other methods to catch any errors that might occur especially when taking a file or text input from a user that could potentially have incompatible or problematic formatting.
+
+ Add some comments to explain what each line of code does and, wherever relevant specify what the expected input and output formats are. 
+
+ wherever this would be useful, use helper functions to simplify the code and avoid repetition. 
+
+ wherever relevant and advisable, use a "for loop" instead of using hard-coded indices. 
+
+ Use variables to store file paths and names instead of repeating them. 
+
+ correctly specify any input, output, or temporary directories instead of hard-coding them. 
+
+ Wherever advisable to do so, use some constants or other robust methods to store values instead of repeating them. 
+
+ wherever applicable, avoid potentially raising a KeyError if a file name is not valid, by passing the file name as a parameter to the function instead of hard-coding it. 
+
+ any variables that will need to be repeated should be properly defined as constants or variables that can be called, rather than having their values repeated in a less robust way.
+
+ wherever applicable, ensure that the file path is coded in a way that it remains valid and platform-independent rather  than being hard coded.
+
+ use some error checking and validation wherever this would be advisable.

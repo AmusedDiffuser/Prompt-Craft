@@ -10,22 +10,99 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+# Define some metadata for the addon
 
 bl_info = {
-    "name" : "Depthify",
-    "author" : "Ariel Tavori",
-    "description" : "",
-    "blender" : (2, 80, 0),
-    "version" : (0, 0, 1),
-    "location" : "",
-    "warning" : "",
-    "category" : "Generic"
+    "name": "Depthify",
+    "author": "Ariel Tavori",
+    "description": "Create a 3D surface from a depth map image",
+    "blender": (2, 80, 0),
+    "version": (0, 0, 2),
+    "location": "Properties > Object",
+    "warning": "",
+    "category": "Object"
 }
 
 # Import the necessary modules
 import bpy
-import sys
-import os
+import logging
+
+# Import translation functions
+from bpy.app.translations import pgettext_iface as iface_
+from bpy.app.translations import pgettext_tip as tip_
+
+# Define a custom property group for storing and accessing properties
+class DepthifyProperties(bpy.types.PropertyGroup):
+    # Define an image property for selecting an image file
+    image: bpy.props.StringProperty(
+        name=iface_("Image"),
+        description=tip_("Select an image file"),
+        subtype='FILE_PATH'
+    )
+
+    # Define a depth map property for storing the depth map values
+    depth_map: bpy.props.FloatVectorProperty(
+        name=iface_("Depth Map"),
+        description=tip_("Store the depth map values"),
+        size=1
+    )
+
+    # Define a surface property for storing the surface object
+    surface: bpy.props.PointerProperty(
+        name=iface_("Surface"),
+        description=tip_("Store the surface object"),
+        type=bpy.types.Object
+    )
+
+    # Define a subdivisions property for adjusting the number of subdivisions
+    subdivisions: bpy.props.IntProperty(
+        name=iface_("Subdivisions"),
+        description=tip_("Adjust the number of subdivisions for the surface"),
+        default=2,
+        min=0,
+        max=6
+    )
+
+    # Define a displacement strength property for adjusting the strength of the displacement modifier
+    displacement_strength: bpy.props.FloatProperty(
+        name=iface_("Displacement Strength"),
+        description=tip_("Adjust the strength of the displacement modifier for the surface"),
+        default=1.0,
+        min=0.0,
+        max=10.0
+    )
+
+    # Define a scale property for adjusting the scale of the surface object
+    scale: bpy.props.FloatVectorProperty(
+        name=iface_("Scale"),
+        description=tip_("Adjust the scale of the surface object"),
+        default=(1.0, 1.0, 1.0),
+        min=0.0,
+        max=10.0,
+        subtype='XYZ'
+    )
+
+    # Define a subdivision type property for choosing the type of subdivision method
+    subdivision_type: bpy.props.EnumProperty(
+        name=iface_("Subdivision Type"),
+        description=tip_("Choose the type of subdivision method for the surface"),
+        items=[
+            ('SIMPLE', "Simple", "Use simple subdivision algorithm"),
+            ('CATMULL_CLARK', "Catmull-Clark", "Use Catmull-Clark subdivision algorithm")
+        ],
+        default='CATMULL_CLARK'
+    )
+
+    # Define a displacement type property for choosing the type of displacement method
+    displacement_type: bpy.props.EnumProperty(
+        name=iface_("Displacement Type"),
+        description=tip_("Choose the type of displacement method for the surface"),
+        items=[
+            ('BUMP', "Bump", "Use bump mapping to create an illusion of depth"),
+            ('TRUE', "True", "Use true displacement to modify the geometry")
+        ],
+        default='TRUE'
+    )
 
 # Import the depthify and operators modules using relative imports
 from . import depthify
@@ -34,10 +111,10 @@ from . import operators
 # Define a custom panel class for the addon UI
 class DepthifyPanel(bpy.types.Panel):
     """A custom panel for creating a 3D surface from a depth map image"""
-    
+
     # Define some metadata for the panel
     bl_idname = "OBJECT_PT_depthify"
-    bl_label = "Depthify"
+    bl_label = iface_("Depthify")
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -46,148 +123,105 @@ class DepthifyPanel(bpy.types.Panel):
     def draw(self, context):
         # Get the current object and its properties
         obj = context.object
-        props = obj.depthify_props
+        props = context.scene.depthify_properties
 
-        # Get the layout of the panel
+        # Create a layout for the panel UI
         layout = self.layout
 
-        # Create a file browser for selecting the depth map image using layout.prop_search()
-        layout.prop_search(props, "image_path", bpy.data, "images", text="Depth Map Image")
+        # Use a file browser template to select an image file
+        layout.template_ID(props, "image", open="image.open")
 
-        # Create a file browser for selecting the output directory using layout.prop()
-        layout.prop(props, "output_path", text="Output Directory")
+        # Use a row to display a button to create a surface object from the image file
+        row = layout.row()
+        row.operator("object.depthify_create_surface")
 
-        # Create a checkbox for enabling or disabling depth inversion using layout.prop()
-        layout.prop(props, "invert_depth", text="Invert Depth")
+        # Use a column to display properties to adjust the surface object
+        col = layout.column()
+        
+        # Use a slider to adjust the number of subdivisions
+        col.prop(props, "subdivisions")
 
-        # Create a slider for adjusting the depth scale using layout.prop()
-        layout.prop(props, "depth_scale", text="Depth Scale")
+        # Use an enum menu to choose the type of subdivision method
+        col.prop(props, "subdivision_type", text="")
 
-        # Create a color picker for selecting the background color using layout.prop()
-        layout.prop(props, "background_color", text="Background Color")
+        # Use a slider to adjust the strength of the displacement modifier
+        col.prop(props, "displacement_strength")
 
-        # Create a checkbox for enabling or disabling anti-aliasing using layout.prop()
-        layout.prop(props, "anti_aliasing", text="Anti-Aliasing")
+        # Use an enum menu to choose the type of displacement method
+        col.prop(props, "displacement_type", text="")
 
-        # Create a dropdown menu for selecting the output format using layout.prop()
-        layout.prop(props, "output_format", text="Output Format")
+        # Use a vector slider to adjust the scale of the surface object
+        col.prop(props, "scale")
 
-        # Create a text input for entering the output name using layout.prop()
-        layout.prop(props, "output_name", text="Output Name")
+# Define a function to register translation dictionaries
+def register_translations():
+    # Define an English translation dictionary
+    en_dict = {
+       ("*", "Select an image file"): "Select an image file",
+       ("*", "Store the depth map values"): "Store the depth map values",
+       ("*", "Store the surface object"): "Store the surface object",
+       ("*", "Adjust the number of subdivisions for the surface"): "Adjust the number of subdivisions for the surface",
+       ("*", "Adjust the strength of the displacement modifier for the surface"): "Adjust the strength of the displacement modifier for the surface",
+       ("*", "Adjust the scale of the surface object"): "Adjust the scale of the surface object",
+       ("*", "Choose the type of subdivision method for the surface"): "Choose the type of subdivision method for the surface",
+       ("*", "Use simple subdivision algorithm"): "Use simple subdivision algorithm",
+       ("*", "Use Catmull-Clark subdivision algorithm"): "Use Catmull-Clark subdivision algorithm",
+       ("*", "Choose the type of displacement method for the surface"): "Choose the type of displacement method for the surface",
+       ("*", "Use bump mapping to create an illusion of depth"): "Use bump mapping to create an illusion of depth",
+       ("*", "Use true displacement to modify the geometry"): "Use true displacement to modify the geometry",
+       ("*", "Create a 3D surface from a depth map image"): "Create a 3D surface from a depth map image"
+    }
 
-        # Create a button for executing the operator using layout.operator()
-        layout.operator("object.depthify", text="Depthify")
+    # Register the English translation dictionary
+    bpy.app.translations.register(__name__, en_dict)
 
+    # TODO: Define and register other translation dictionaries for other languages
 
-# Define a custom property group class for storing the addon properties
-class DepthifyProperties(bpy.types.PropertyGroup):
-    
-    # Define some metadata for each property using bpy.props
+# Define a function to unregister translation dictionaries
+def unregister_translations():
+    # Unregister all translation dictionaries
+    bpy.app.translations.unregister(__name__)
 
-    # A string property for storing the path of the depth map image
-    image_path: bpy.props.StringProperty(
-        name="Image Path",
-        description="The path of the depth map image",
-        default="",
-        subtype="FILE_PATH"
-    )
-
-    # A string property for storing the path of the output directory
-    output_path: bpy.props.StringProperty(
-        name="Output Path",
-        description="The path of the output directory",
-        default="",
-        subtype="DIR_PATH"
-    )
-
-    # A boolean property for enabling or disabling depth inversion
-    invert_depth: bpy.props.BoolProperty(
-        name="Invert Depth",
-        description="Invert the depth map values",
-        default=False
-    )
-
-    # A float property for adjusting the depth scale
-    depth_scale: bpy.props.FloatProperty(
-        name="Depth Scale",
-        description="The scale factor for the depth map values",
-        default=0.1,
-        min=0.0,
-        max=1.0,
-        step=0.01,
-        precision=2
-    )
-
-    # A float vector property for selecting the background color
-    background_color: bpy.props.FloatVectorProperty(
-        name="Background Color",
-        description="The color of the background plane",
-        default=(0.0, 0.0, 0.0),
-        min=0.0,
-        max=1.0,
-        subtype="COLOR"
-    )
-
-    # A boolean property for enabling or disabling anti-aliasing
-    anti_aliasing: bpy.props.BoolProperty(
-        name="Anti-Aliasing",
-        description="Enable anti-aliasing for the render",
-        default=True
-    )
-
-    # An enum property for selecting the output format
-    output_format: bpy.props.EnumProperty(
-        name="Output Format",
-        description="The format of the output image file",
-        items=[
-            ('PNG', "PNG", "Portable Network Graphics"),
-            ('JPEG', "JPEG", "Joint Photographic Experts Group"),
-            ('BMP', "BMP", "Bitmap"),
-            ('TIFF', "TIFF", "Tagged Image File Format")
-        ],
-        default='PNG'
-    )
-
-    # A string property for entering the output name
-    output_name: bpy.props.StringProperty(
-        name="Output Name",
-        description="The name of the output image file",
-        default="depthify_output"
-    )
-
-
-# Define a function to register the addon components
+# Define a function to register the addon
 def register():
-    
-    # Register the custom property group class using bpy.utils.register_class()
+    # Register the custom property group
     bpy.utils.register_class(DepthifyProperties)
+    bpy.types.Scene.depthify_properties = bpy.props.PointerProperty(type=DepthifyProperties)
 
-    # Register a pointer property to store the addon properties in each object using bpy.types.Object.depthify_props
-    bpy.types.Object.depthify_props = bpy.props.PointerProperty(type=DepthifyProperties)
+    # Register the depthify and operators modules
+    depthify.register()
+    operators.register()
 
-    # Register the custom panel class using bpy.utils.register_class()
+    # Register the custom panel class
     bpy.utils.register_class(DepthifyPanel)
 
-    # Register the custom operator class using depthify.register()
-    depthify.register()
+    # Register the translation dictionaries
+    register_translations()
 
+    # Log a message to the console
+    logging.info("Depthify addon registered")
 
-# Define a function to unregister the addon components
+# Define a function to unregister the addon
 def unregister():
-    
-     # Unregister the custom operator class using depthify.unregister()
-     depthify.unregister()
+    # Unregister the translation dictionaries
+    unregister_translations()
 
-     # Unregister the custom panel class using bpy.utils.unregister_class()
-     bpy.utils.unregister_class(DepthifyPanel)
+    # Unregister the custom panel class
+    bpy.utils.unregister_class(DepthifyPanel)
 
-     # Unregister the pointer property using del bpy.types.Object.depthify_props
-     del bpy.types.Object.depthify_props
+    # Unregister the depthify and operators modules
+    operators.unregister()
+    depthify.unregister()
 
-     # Unregister the custom property group class using bpy.utils.unregister_class()
-     bpy.utils.unregister_class(DepthifyProperties)
+    # Unregister the custom property group
+    del bpy.types.Scene.depthify_properties
+    bpy.utils.unregister_class(DepthifyProperties)
 
+    # Log a message to the console
+    logging.info("Depthify addon unregistered")
 
-# Run the register function if this file is executed as a script
+# Run the register function when the addon is enabled
 if __name__ == "__main__":
-     register()
+    register()
+
+       

@@ -203,6 +203,7 @@ def update_progress():
     if progress >= 1.0:
         # Log a success message to the console and the UI
         logging.info("Depthify process completed")
+        logging.log(logging.INFO, "Depthify process completed")
         bpy.ops.wm.progress_end()
         bpy.ops.wm.report({'INFO'}, "Depthify process completed")
 

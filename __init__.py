@@ -11,7 +11,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # Define some metadata for the addon
+# Define some metadata for the addon
 
+# Define some metadata for the addon
 bl_info = {
     "name": "Depthify",
     "author": "Ariel Tavori",
@@ -104,9 +106,9 @@ class DepthifyProperties(bpy.types.PropertyGroup):
         default='TRUE'
     )
 
-# Import the depthify and operators modules using relative imports
-from . import depthify
-from . import operators
+# Import the depthify and operators modules using absolute imports
+from Depthify import depthify
+from Depthify import operators
 
 # Define a custom panel class for the addon UI
 class DepthifyPanel(bpy.types.Panel):

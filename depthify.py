@@ -8,8 +8,8 @@ from mathutils import Vector
 # Import the translation function
 from bpy.app.translations import pgettext_iface as iface_
 
-# Import the timers module for creating progress bar and status message
-from bpy.app.timers import Timer
+# Import the bpy.app.timers module for creating progress bar and status message
+import bpy.app.timers
 
 # Define a global variable to store the timer object
 timer = None
@@ -269,7 +269,7 @@ def unregister_timer():
         # Set the timer object to None
         timer = None
 
-# Define a function to register depthify module with Blender handlers module 
+# Define a function to register Depthify module with Blender handlers module 
 def register():
    """Register depthify module with Blender handlers module.
 
@@ -283,7 +283,7 @@ def register():
    # Register a callback function with save_pre handler to unregister timer when saving a file
    bpy.app.handlers.save_pre.append(unregister_timer)
 
-# Define a function to unregister depthify module from Blender handlers module
+# Define a function to unregister Depthify module from Blender handlers module
 def unregister():
    """Unregister depthify module from Blender handlers module.
 
@@ -338,7 +338,7 @@ def update_image_and_depth_map(dummy):
         scene.depthify_properties.depth_map.clear()
         scene.depthify_properties.depth_map.extend(depth_map)
 
-# Define a function to register depthify module with Blender handlers module 
+# Define a function to register Depthify module with Blender handlers module 
 def register():
    """Register depthify module with Blender handlers module.
 
@@ -352,7 +352,7 @@ def register():
    # Register a callback function with save_pre handler to unregister timer when saving a file
    bpy.app.handlers.save_pre.append(unregister_timer)
 
-# Define a function to unregister depthify module from Blender handlers module
+# Define a function to unregister Depthify module from Blender handlers module
 def unregister():
    """Unregister depthify module from Blender handlers module.
 

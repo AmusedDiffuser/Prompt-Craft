@@ -1,5 +1,4 @@
 # Virtual Computer
-(curated excerpt from https://docs.pinokio.computer/)
 
 ### Pinokio is a ***virtual computer***.
 
@@ -76,3 +75,6 @@ Now anyone can run powerful server based apps on their own computer, effotlessly
 - **Bots**: Spin up bots that run in the background, in the Pinokio browser, with one click.
 
 ---
+
+
+> (curated excerpt. Read the full documentation at: https://docs.pinokio.computer/)

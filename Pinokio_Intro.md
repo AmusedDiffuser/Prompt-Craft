@@ -1,8 +1,31 @@
 # Virtual Computer
 
-### Pinokio is a ***virtual computer***.
+Pinokio is a ***virtual computer*** that runs in the browser. It has its own operating system which consists of:
+- file system
+- processor
+- memory
+- API
 
-It has all the components of a traditional computer, except every component is written from scratch to facilitate the main goal, which is to build the ultimate application that can live.
+
+It also has a scripting language that can automate any task on the computer. 
+
+---
+
+### Pinokio can COMPLETELY AUTOMATE:
+- installation 
+- deployment 
+- operations 
+
+### of ANY:
+- application
+- script
+- server
+
+with one click! This includes AI tools, web interfaces and libraries. Pinokio is the ultimate platform for building and running AI applications in the browser.
+
+---
+
+It has all the components of a traditional computer, except every component is written from scratch to facilitate the main goal, which is to build the ultimate application that can live and evolve autonomously.
 
 - **[File System](https://docs.pinokio.computer/fs/overview)**: Where and how Pinokio stores files.
 - **[Processor](https://docs.pinokio.computer/processor/overview)**: How Pinokio runs tasks.

@@ -1,4 +1,5 @@
 # Virtual Computer
+(curated excerpt from https://docs.pinokio.computer/)
 
 ### Pinokio is a ***virtual computer***.
 
